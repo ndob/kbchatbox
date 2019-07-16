@@ -1,0 +1,10 @@
+[package]
+name = "kbchatbox"
+version = "0.1.0"
+authors = ["ndob"]
+edition = "2018"
+
+[dependencies]
+iui = "0.3"
+serde_json = "1.0"
+chrono = "0.4.7"
