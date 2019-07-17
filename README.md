@@ -2,13 +2,10 @@
 Lightweight Keybase chat client
 
 ## TODO
-- [ ] Proper error handling. -> remove unwraps
 - [ ] Close threads
 - [ ] Notification out from keybase.rs.
-- [x] Send msg with conversation id.
 - [ ] Travis release?
 - [ ] Travis win/mac builds
-- [ ] Channel buffer len parameter
 - [ ] Keybase.rs -> lib
 
 https://www.maketecheasier.com/desktop-notifications-for-linux-command/

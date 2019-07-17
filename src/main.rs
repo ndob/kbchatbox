@@ -9,7 +9,7 @@ use chrono::{Local, TimeZone};
 use iui::controls::*;
 use iui::prelude::*;
 use keybase::{Channel, ChatMsg, Keybase, KeybaseReply, KeybaseRequest};
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Sender, TryRecvError};
 use std::sync::{Arc, Mutex};
 use textbuffer::TextBuffer;
 
@@ -186,8 +186,8 @@ fn main() {
         move || {
             let new_messages_rx = kb.get_message_receiver();
             let res = new_messages_rx.try_recv();
-            if res.is_ok() {
-                match res.unwrap() {
+            match res {
+                Ok(reply) => match reply {
                     KeybaseReply::ChatMsgReply { msg } => handle_chat_msg(
                         &msg,
                         &current_conversation_id,
@@ -207,7 +207,13 @@ fn main() {
                             &ui,
                         );
                     }
-                }
+                },
+                Err(error) => match error {
+                    TryRecvError::Disconnected => {
+                        panic!("Msg recv error");
+                    }
+                    _ => {}
+                },
             }
         }
     });
