@@ -26,6 +26,7 @@ enum MsgType {
 pub struct ChatMsg {
     pub utc_timestamp: chrono::NaiveDateTime,
     pub channel: String,
+    pub conversation_id: String,
     pub text: String,
 }
 
@@ -293,16 +294,13 @@ impl Keybase {
         return self.outgoing_tx.clone();
     }
 
-    // TODO: Send by conversation id.
-    pub fn create_msg_req(channel: &str, text: &str) -> KeybaseRequest {
+    pub fn create_msg_req(conversation_id: &str, text: &str) -> KeybaseRequest {
         KeybaseRequest {
             msg: json!({
                 "method": "send",
                 "params": {
                     "options": {
-                        "channel": {
-                            "name": channel
-                        },
+                        "conversation_id": conversation_id,
                         "message": {"body": text}
                     }
                 }
@@ -338,7 +336,7 @@ impl Keybase {
         match serde_json::from_str(&json_str) {
             Ok(val) => {
                 // For debugging.
-                // println!("{}", safe_json_to_string(&v));
+                // println!("{}", safe_json_to_string(&val));
                 Ok(val)
             }
             Err(err) => {
@@ -360,9 +358,15 @@ impl Keybase {
                 None => return Err(KeybaseInternalError::ParseError),
             };
 
+            let conversation_id = match v["msg"]["conversation_id"].as_str() {
+                Some(conv_id) => conv_id.to_string(),
+                None => return Err(KeybaseInternalError::ParseError),
+            };
+
             return Ok(ChatMsg {
                 utc_timestamp: NaiveDateTime::from_timestamp(ts_unix_epoch, 0),
                 channel: channel,
+                conversation_id: conversation_id,
                 text: text,
             });
         }

@@ -34,14 +34,14 @@ fn safe_send(tx: &Sender<KeybaseRequest>, req: KeybaseRequest) {
 
 fn handle_chat_msg(
     msg: &ChatMsg,
-    current_chat: &ThreadSafeString,
+    current_conversation_id: &ThreadSafeString,
     text_buf: &mut TextBuffer,
     label: &mut Label,
     ui: &UI,
 ) {
     // Only append if the msg is for the currently opened channel.
-    let cur_chat = current_chat.lock().unwrap();
-    if msg.channel == *cur_chat {
+    let cur_chat = current_conversation_id.lock().unwrap();
+    if msg.conversation_id == *cur_chat {
         let formatted = format_chat_msg(&msg);
         text_buf.append(&formatted);
         label.set_text(&ui, &text_buf.get_newest_formatted());
@@ -64,7 +64,7 @@ fn handle_chat_msg_list(
 
 fn handle_channel_list(
     channel_list: &Vec<Channel>,
-    current_chat: &ThreadSafeString,
+    current_conversation_id: &ThreadSafeString,
     sender: &Sender<KeybaseRequest>,
     conversations_vbox: &mut VerticalBox,
     ui: &UI,
@@ -73,14 +73,13 @@ fn handle_channel_list(
     for chan in channel_list {
         // Create a button for each conversation.
         let mut button = Button::new(&ui, &chan.name);
-        let channel_name = chan.name.clone();
         let channel_id = chan.id.clone();
         button.on_clicked(&ui, {
-            let current_chat = Arc::clone(&current_chat);
+            let current_conversation_id = Arc::clone(&current_conversation_id);
             let sender = sender.clone();
             move |_btn| {
-                let mut locked = current_chat.lock().unwrap();
-                *locked = channel_name.clone();
+                let mut locked = current_conversation_id.lock().unwrap();
+                *locked = channel_id.clone();
                 let req = Keybase::create_read_conversation_req(&channel_id, TEXTBUF_HEIGHT);
                 safe_send(&sender, req);
             }
@@ -90,7 +89,7 @@ fn handle_channel_list(
 }
 
 fn main() {
-    let current_chat = ThreadSafeString::new(Mutex::new(String::new()));
+    let current_conversation_id = ThreadSafeString::new(Mutex::new(String::new()));
     let kb = Keybase::new();
     let req = Keybase::create_list_channels_req();
     let sender = kb.get_message_sender();
@@ -145,7 +144,7 @@ fn main() {
     entry.on_changed(&ui, {
         let ui = ui.clone();
         let mut entry = entry.clone();
-        let current_chat = Arc::clone(&current_chat);
+        let current_conversation_id = Arc::clone(&current_conversation_id);
         let sender = sender.clone();
         move |val| {
             let mut newline_found = false;
@@ -157,7 +156,7 @@ fn main() {
 
             if newline_found {
                 entry.set_value(&ui, "");
-                let locked = current_chat.lock().unwrap();
+                let locked = current_conversation_id.lock().unwrap();
                 let req = Keybase::create_msg_req(&locked, &val.trim());
                 safe_send(&sender, req);
             }
@@ -189,16 +188,20 @@ fn main() {
             let res = new_messages_rx.try_recv();
             if res.is_ok() {
                 match res.unwrap() {
-                    KeybaseReply::ChatMsgReply { msg } => {
-                        handle_chat_msg(&msg, &current_chat, &mut text_buf, &mut label, &ui)
-                    }
+                    KeybaseReply::ChatMsgReply { msg } => handle_chat_msg(
+                        &msg,
+                        &current_conversation_id,
+                        &mut text_buf,
+                        &mut label,
+                        &ui,
+                    ),
                     KeybaseReply::ChatMsgListReply { msgs } => {
                         handle_chat_msg_list(&msgs, &mut text_buf, &mut label, &ui);
                     }
                     KeybaseReply::ChannelListReply { channels } => {
                         handle_channel_list(
                             &channels,
-                            &current_chat,
+                            &current_conversation_id,
                             &sender,
                             &mut conversations_vbox,
                             &ui,

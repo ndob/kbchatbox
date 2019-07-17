@@ -5,7 +5,7 @@ Lightweight Keybase chat client
 - [ ] Proper error handling. -> remove unwraps
 - [ ] Close threads
 - [ ] Notification out from keybase.rs.
-- [ ] Send msg with conversation id.
+- [x] Send msg with conversation id.
 - [ ] Travis release?
 - [ ] Travis win/mac builds
 - [ ] Channel buffer len parameter
