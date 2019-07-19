@@ -26,7 +26,6 @@ cargo test
 ## TODO
 - [ ] Fix API thread closing
 - [ ] Notification related code from keybase.rs to main.
-- [ ] Travis builds
 
 ## Useful info
 
