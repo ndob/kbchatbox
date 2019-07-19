@@ -2,6 +2,8 @@
 
 Regular Keybase GUI is fairly resource intensive as it uses Electron. This is a simple front end for the chat API that is accessible from the command line.
 
+![Main screen](screen.png)
+
 ## Building
 
 ```
