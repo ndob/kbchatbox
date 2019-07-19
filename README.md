@@ -1,4 +1,4 @@
-# kbchatbox - Lightweight Keybase chat client
+# kbchatbox - Lightweight Keybase chat client [![Build Status](https://travis-ci.com/ndob/kbchatbox.svg?branch=master)](https://travis-ci.com/ndob/kbchatbox)
 
 Regular Keybase GUI is fairly resource intensive as it uses Electron. This is a simple front end for the chat API that is accessible from the command line.
 
