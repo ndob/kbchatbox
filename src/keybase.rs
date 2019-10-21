@@ -286,6 +286,18 @@ impl Keybase {
         }));
     }
 
+    pub fn login(&self) -> Result<(), String> {
+        let status = match Command::new("keybase").arg("login").status() {
+            Ok(s) => s,
+            Err(_) => return Err("Spawning keybase process failed".to_string()),
+        };
+
+        if !status.success() {
+            return Err("Login failed".to_string());
+        }
+        Ok(())
+    }
+
     pub fn get_message_receiver(&self) -> &Receiver<KeybaseReply> {
         return &self.incoming_rx;
     }

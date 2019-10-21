@@ -91,6 +91,11 @@ fn handle_channel_list(
 fn main() {
     let current_conversation_id = ThreadSafeString::new(Mutex::new(String::new()));
     let kb = Keybase::new();
+    match kb.login() {
+        Ok(_) => println!("Successfully logged in to Keybase."),
+        Err(reason) => panic!("Keybase login failed: {}", reason),
+    }
+
     let req = Keybase::create_list_channels_req();
     let sender = kb.get_message_sender();
     safe_send(&sender, req);
