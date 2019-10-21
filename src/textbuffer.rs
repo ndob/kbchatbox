@@ -17,7 +17,10 @@ impl TextBuffer {
     }
 
     pub fn append(&mut self, new_line: &str) {
-        self.raw_lines.push_back(new_line.to_string());
+        // Split newlines.
+        for line in new_line.lines() {
+            self.raw_lines.push_back(line.to_string());
+        }
 
         // We only need maximum of ysize rows to fill the buffer vertically.
         while self.raw_lines.len() > self.ysize {
