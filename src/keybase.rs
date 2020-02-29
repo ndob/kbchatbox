@@ -107,7 +107,7 @@ impl Drop for Keybase {
 
         if let Some(handle) = self.api_thread.take() {
             println!("Joining API thread back.");
-            let empty_msg = KeybaseRequest { msg: json!({}) };
+            let empty_msg = KeybaseRequest { msg: Value::Null };
             match self.outgoing_tx.send(empty_msg) {
                 Ok(_) => {
                     handle.join().expect("API thread join failed.");
@@ -225,6 +225,10 @@ impl Keybase {
         tx: &Sender<KeybaseReply>,
     ) -> Result<(), KeybaseInternalError> {
         let new_msg = rx.recv()?;
+        if new_msg.msg == Value::Null {
+            return Err(KeybaseInternalError::ParseError);
+        }
+
         let json_str = serde_json::to_string(&new_msg.msg)?;
         stdin.write(json_str.as_bytes())?;
 
