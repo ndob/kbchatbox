@@ -438,6 +438,12 @@ impl Keybase {
                 Some(name) => name.to_string(),
                 None => return Err(KeybaseInternalError::ParseError),
             };
+
+            let topic_name = match c["channel"]["topic_name"].as_str() {
+                Some(name) => name.to_string(),
+                None => "".to_string(),
+            };
+
             let id = match c["id"].as_str() {
                 Some(id) => id.to_string(),
                 None => return Err(KeybaseInternalError::ParseError),
@@ -447,11 +453,18 @@ impl Keybase {
                 None => return Err(KeybaseInternalError::ParseError),
             };
 
+            let mut full_channel_name = name;
+            if !topic_name.is_empty() {
+                full_channel_name += "#";
+                full_channel_name += &topic_name;
+            }
+
             ret.push(Channel {
-                name: name,
+                name: full_channel_name,
                 id: id,
                 unread_msgs: unread_msgs,
-            })
+            });
+
         }
         return Ok(KeybaseReply::ChannelListReply { channels: ret });
     }
