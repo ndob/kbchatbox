@@ -16,7 +16,7 @@ use textbuffer::TextBuffer;
 type ThreadSafeString = std::sync::Arc<std::sync::Mutex<std::string::String>>;
 
 const TEXTBUF_WIDTH: usize = 100;
-const TEXTBUF_HEIGHT: usize = 15;
+const TEXTBUF_HEIGHT: usize = 25;
 
 fn format_chat_msg(msg: &keybase::ChatMsg) -> String {
     let ts = Local.from_utc_datetime(&msg.utc_timestamp);
