@@ -465,6 +465,7 @@ impl Keybase {
                 unread_msgs: unread_msgs,
             });
 
+            ret.sort_by(|a, b| a.name.cmp(&b.name));
         }
         return Ok(KeybaseReply::ChannelListReply { channels: ret });
     }
