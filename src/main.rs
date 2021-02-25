@@ -58,8 +58,8 @@ fn handle_chat_msg_list(
     for msg in msg_list.iter().rev() {
         let formatted = format_chat_msg(&msg);
         text_buf.append(&formatted);
-        label.set_text(&ui, &text_buf.get_newest_formatted());
     }
+    label.set_text(&ui, &text_buf.get_newest_formatted());
 }
 
 fn handle_channel_list(
@@ -78,6 +78,7 @@ fn handle_channel_list(
             let current_conversation_id = Arc::clone(&current_conversation_id);
             let sender = sender.clone();
             move |_btn| {
+                println!("Changed channel.");
                 let mut locked = current_conversation_id.lock().unwrap();
                 *locked = channel_id.clone();
                 let req = Keybase::create_read_conversation_req(&channel_id, TEXTBUF_HEIGHT);

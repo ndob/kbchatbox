@@ -1,5 +1,9 @@
+extern crate linkify;
+
+use linkify::LinkFinder;
 use std::cmp;
 use std::collections::vec_deque::VecDeque;
+use std::collections::HashSet;
 
 pub struct TextBuffer {
     xsize: usize,
@@ -38,11 +42,20 @@ impl TextBuffer {
 
     fn get_newest(&self) -> Vec<String> {
         let mut formatted: Vec<String> = Vec::new();
+        let mut links: HashSet<String> = HashSet::new();
+        let finder = LinkFinder::new();
+
         // Iterate from newest to oldest.
         for line in self.raw_lines.iter().rev() {
             // Is the buffer full?
             if formatted.len() >= self.ysize {
                 break;
+            }
+
+            // Check if there are any URLs and print out to console if there are.
+            let found_links: Vec<_> = finder.links(line).collect();
+            for link in found_links {
+                links.insert(link.as_str().to_string());
             }
 
             // Does the new raw line fit as is? If not split into sub lines.
@@ -59,7 +72,12 @@ impl TextBuffer {
                 formatted.extend(truncated_new_lines);
                 continue;
             }
+
             formatted.push(line.to_string());
+        }
+
+        for l in &links {
+            println!("Found link: {}", l.as_str());
         }
 
         formatted.reverse();
@@ -143,5 +161,4 @@ mod tests {
 
         assert_eq!(text_buf.get_raw_buffer_capacity(), h);
     }
-
 }
